@@ -4,6 +4,11 @@ Review all the codes before using it in production
 author : bhaskar Sharma
 email : sharmabhaskar13@gmail.com
 
+need help in creating : 
+1> Freelance Contract : types -> paybyfrequency, paybylumpsum
+2> DiversifiedToken : invest smartly by diversifying your porfolio across different eth based assets
+3> 
+
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
