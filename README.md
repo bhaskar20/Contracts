@@ -1,5 +1,6 @@
 This Repo contains Demo codes for smart contracts to be used on ETHEREUM chain
 Review all the codes before using it in production
+<b>Highly untested code samples
 
 author : bhaskar Sharma
 email : sharmabhaskar13@gmail.com
