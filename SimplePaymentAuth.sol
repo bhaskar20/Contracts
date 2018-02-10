@@ -25,11 +25,11 @@ contract FixedAmountSimplePaymentAuth {
     mapping(address => User) private users;
     mapping(address => uint256) private refunds;
 
-    event NewUser();
-    event RenewSubscription();
-    event Ended();
-    event FeeChanged();
-    event CycleChanged();
+    event NewUser(address userAddress, bytes32 passHash, uint256 timeStamp);
+    event RenewedSubscription(address userAddress, uint256 timeStamp);
+    event Ended(bool ended);
+    event FeeChanged(uint256 newFee);
+    event PasswordChanged(address userAddress, bytes32 passHash);
 
     modifier onlyOwner() {
         assert(msg.sender == owner);
@@ -43,11 +43,6 @@ contract FixedAmountSimplePaymentAuth {
 
     modifier sufficientFee() {
         assert(msg.value >= feeAmount);
-        _;
-    }
-
-    modifier validPassword(bytes32 hash) {
-        assert(hash.length == 26);
         _;
     }
 
@@ -73,7 +68,7 @@ contract FixedAmountSimplePaymentAuth {
     */
     function () public payable {}
 
-    function signUp(bytes32 passHash) public payable notEnded onlyNewUser sufficientFee validPassword(passHash) {
+    function signUp(bytes32 passHash) public payable notEnded onlyNewUser sufficientFee {
         uint256 extraAmount = SafeMath.sub(msg.value, feeAmount);
         users[msg.sender] = User({
             loginUsername: msg.sender,
@@ -81,12 +76,14 @@ contract FixedAmountSimplePaymentAuth {
             lastPaymentDate: block.timestamp
         });
         refunds[msg.sender] = extraAmount;
+        NewUser(msg.sender, passHash, now);
     }
 
     function renewSubscription() public payable notEnded onlyExistingUser sufficientFee {
         uint256 extraAmount = SafeMath.sub(msg.value, feeAmount);
         refunds[msg.sender] += extraAmount;
-        users[msg.sender].lastPaymentDate = block.timestamp;
+        users[msg.sender].lastPaymentDate = now;
+        RenewedSubscription(msg.sender, now);
     }
 
     function withdrawRefund() public onlyExistingUser {
@@ -98,10 +95,12 @@ contract FixedAmountSimplePaymentAuth {
 
     function changePassword(bytes32 newPas) public notEnded onlyExistingUser {
         users[msg.sender].passHash = newPas;
+        PasswordChanged(msg.sender, newPas);
     }
 
     function kill() public notEnded onlyOwner {
         ended = true;
+        Ended(true);
     }
 
     function withdraw(uint256 amount, address to) public onlyOwner {
